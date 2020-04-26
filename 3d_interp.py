@@ -1,5 +1,5 @@
 from tifffile import imread
-from vispy import app, scene
+from vispy import app, scene, color
 
 import numpy as np
 from scipy import interpolate
@@ -87,9 +87,18 @@ print("Post interp")
 canvas = scene.SceneCanvas(keys='interactive', bgcolor='w')
 view = canvas.central_widget.add_view()
 view.camera = scene.TurntableCamera(up='z', fov=60)
-downsample = 10
-p1 = scene.visuals.SurfacePlot(x=y[::downsample], y=x_out[::downsample], z=out_z[::downsample, ::downsample], color=(0.3, 0.3, 1, 1))
 
+downsample = 10
+z = out_z[::downsample, ::downsample]
+
+# https://github.com/vispy/vispy/issues/1006#issuecomment-250983610
+c = color.get_colormap("hsl").map(z/np.abs(np.max(z))).reshape(z.shape + (-1,))
+c = c.flatten().tolist()
+c=list(map(lambda x,y,z,w:(x,y,z,w), c[0::4],c[1::4],c[2::4],c[3::4]))
+
+p1 = scene.visuals.SurfacePlot(x=y[::downsample], y=x_out[::downsample], z=z)
+
+p1.mesh_data.set_vertex_colors(c)
 view.add(p1)
 
 axis = scene.visuals.XYZAxis(parent=view.scene)
