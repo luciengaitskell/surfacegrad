@@ -25,8 +25,7 @@ orig_tiff[orig_tiff < -10e20] = 0
 tif = orig_tiff[:8000, :8000]
 
 
-# TODO: THIS IS PERFORMED TWICE
-x, y = np.meshgrid(np.arange(tif.shape[1]), np.arange(tif.shape[0]))
+x, y = np.arange(tif.shape[1]), np.arange(tif.shape[0])
 
 x = x.astype('float64')
 y = y.astype('float64')
@@ -71,7 +70,7 @@ else:
     num_x = np.floor(np.max(x_m_orig) / SCALE)
     x_out = np.arange(0, num_x)  # NEED TO MAKE GRID INSTEAD
 
-    x_map, y_map = np.meshgrid(x_out, np.arange(tif.shape[0]))
+    x_map, y_map = np.meshgrid(x_out, y)
     '''
     def multiInterp2(x, xp, fp):
         i = np.arange(x.size)
@@ -80,14 +79,13 @@ else:
         return (1 - d) * fp[i, j] + fp[i, j + 1] * d'''
     #https://stackoverflow.com/questions/43772218/fastest-way-to-use-numpy-interp-on-a-2-d-array
 
-    out_z = np.array([np.interp(x_out*SCALE, x_m_orig[i], tif[i]) for i in range(x_m_orig.shape[0])])
+    out_z = np.array([np.interp(x_out*SCALE, x_m_orig, tif[i]) for i in range(x_m_orig.shape[0])])
 
 print("Post interp")
 plt.figure()
 ax = plt.axes(projection='3d')
 plt.gca().invert_xaxis()
 ax.view_init(elev=90., azim=90.)
-#ax.contour(x, y, tif, levels=10, cmap='binary')
 
 #ax.scatter(x_map, y_map, z_griddata, marker="o")
 
