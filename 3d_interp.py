@@ -1,5 +1,6 @@
 from tifffile import imread
-import matplotlib.pyplot as plt
+from vispy import app, scene
+
 import numpy as np
 from scipy import interpolate
 
@@ -22,7 +23,7 @@ print(orig_tiff[10**3, 10**3])
 print(orig_tiff[10**4, 10**4])
 
 orig_tiff[orig_tiff < -10e20] = 0
-tif = orig_tiff[:8000, :8000]
+tif = orig_tiff[:10000, :10000]
 
 
 x, y = np.arange(tif.shape[1]), np.arange(tif.shape[0])
@@ -82,17 +83,17 @@ else:
     out_z = np.array([np.interp(x_out*SCALE, x_m_orig, tif[i]) for i in range(x_m_orig.shape[0])])
 
 print("Post interp")
-plt.figure()
-ax = plt.axes(projection='3d')
-plt.gca().invert_xaxis()
-ax.view_init(elev=90., azim=90.)
 
-#ax.scatter(x_map, y_map, z_griddata, marker="o")
+canvas = scene.SceneCanvas(keys='interactive', bgcolor='w')
+view = canvas.central_widget.add_view()
+view.camera = scene.TurntableCamera(up='z', fov=60)
+downsample = 10
+p1 = scene.visuals.SurfacePlot(x=y[::downsample], y=x_out[::downsample], z=out_z[::downsample, ::downsample], color=(0.3, 0.3, 1, 1))
 
-ax.contour(x_map*SCALE, y_map*SCALE, out_z, levels=50, cmap='binary')
-# plt.hist(tif.flatten(), bins=np.arange(75, 100),  log=True)
-#plt.imshow(tif)
-plt.show()
+view.add(p1)
 
+axis = scene.visuals.XYZAxis(parent=view.scene)
 
-
+if __name__ == '__main__':
+    canvas.show()
+    app.run()
