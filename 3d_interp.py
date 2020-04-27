@@ -98,10 +98,10 @@ z = out_z[::downsample, ::downsample]
 
 #color_source = z
 color_source = gradient[::downsample, ::downsample]
-color_source[color_source > 1.0] = 1.0
+color_source[color_source > 0.4] = 0.4
 
 # https://github.com/vispy/vispy/issues/1006#issuecomment-250983610
-c = color.get_colormap("hsl").map(color_source/np.abs(np.max(color_source))).reshape(color_source.shape + (-1,))
+c = color.get_colormap('RdBu').map(color_source/np.abs(np.max(color_source))).reshape(color_source.shape + (-1,))
 c = c.flatten().tolist()
 c=list(map(lambda x,y,z,w:(x,y,z,w), c[0::4],c[1::4],c[2::4],c[3::4]))
 
