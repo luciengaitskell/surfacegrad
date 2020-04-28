@@ -89,9 +89,37 @@ canvas = scene.SceneCanvas(keys='interactive', bgcolor='w')
 view = canvas.central_widget.add_view()
 view.camera = scene.TurntableCamera(up='z', fov=60)
 
-gradient = np.gradient(out_z)
+print("Pre gradient")
+
+
+def calc_gradient(A, axis):
+    # Get first and last row / col and expand dimensions to match original
+    if axis == 0:  # x
+        prep = np.expand_dims(A[0, :], axis=0)  # [a,b,c,...] -> [[a,b,c,...]]
+        app = np.expand_dims(A[-1, :], axis=0)
+    elif axis == 1:  # y
+        prep = np.expand_dims(A[:, 0], axis=1)  # [a,b,c,...] -> [[a],[b],[c],...]
+        app = np.expand_dims(A[:, -1], axis=1)
+    else:
+        raise ValueError
+
+    # Take difference with extra first and last row / col
+    D = np.diff(A, axis=axis, prepend=prep, append=app)  # Take difference between adjacent elements
+
+    # Take sum of adjacent rows / col
+    if axis == 0:  # x
+        B = D[:-1] + D[1:]
+    elif axis == 1:  # y
+        B = D[:, :-1] + D[:, 1:]
+
+    return B / 2  # Complete formula
+
+gradient = [calc_gradient(out_z, 0), calc_gradient(out_z, 1)]
+#gradient = np.gradient(out_z)
 gradient = np.sqrt(np.square(gradient[0]) * np.square(gradient[1]))
 #gradient = np.log(gradient)
+
+print("Post gradient")
 
 downsample = 10
 z = out_z[::downsample, ::downsample]
