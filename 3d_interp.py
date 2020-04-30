@@ -114,9 +114,10 @@ def calc_gradient(A, axis):
 
     return B / 2  # Complete formula
 
-gradient = [calc_gradient(out_z, 0), calc_gradient(out_z, 1)]
+gradient = (calc_gradient(out_z, 0), calc_gradient(out_z, 1))
 #gradient = np.gradient(out_z)
-gradient = np.sqrt(np.square(gradient[0]) * np.square(gradient[1]))
+gradient_mag = np.sqrt(np.square(gradient[0]) * np.square(gradient[1]))
+gradient_dir = np.arctan2(*gradient)
 #gradient = np.log(gradient)
 
 print("Post gradient")
@@ -125,11 +126,16 @@ downsample = 10
 z = out_z[::downsample, ::downsample]
 
 #color_source = z
-color_source = gradient[::downsample, ::downsample]
-color_source[color_source > 0.4] = 0.4
+gradient_dir = gradient_dir[::downsample, ::downsample]
+gradient_mag = gradient_mag[::downsample, ::downsample]
+
+color_source = gradient_dir
+#color_source[color_source > 0.4] = 0.4
 
 # https://github.com/vispy/vispy/issues/1006#issuecomment-250983610
-c = color.get_colormap('RdBu').map(color_source/np.abs(np.max(color_source))).reshape(color_source.shape + (-1,))
+c = color.get_colormap('hsv').map(color_source/np.abs(np.max(color_source))).reshape(color_source.shape + (-1,))
+c[gradient_mag > 0.4, 3] = 0
+
 c = c.flatten().tolist()
 c=list(map(lambda x,y,z,w:(x,y,z,w), c[0::4],c[1::4],c[2::4],c[3::4]))
 
@@ -139,7 +145,7 @@ p1.mesh_data.set_vertex_colors(c)
 view.add(p1)
 
 plt.figure()
-plt.hist(gradient.ravel(), bins=np.arange(0,1.5,0.01))
+plt.hist(gradient_mag.ravel(), bins=np.arange(0,1.5,0.01))
 plt.show()
 
 
