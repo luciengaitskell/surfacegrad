@@ -11,6 +11,7 @@ numpy = "==1.18.3"
 Pillow = "==2.2.2"
 tifffile = "*"
 scipy = "*"
+vispy = "*"
 
 [requires]
 python_version = "3.8"
