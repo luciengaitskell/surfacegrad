@@ -7,7 +7,7 @@ verify_ssl = true
 
 [packages]
 matplotlib = "*"
-numpy = "==1.18.3"
+numpy = "==1.22.0"
 Pillow = ">=6.2.2"
 tifffile = "*"
 scipy = "*"
